@@ -1,0 +1,13 @@
+<Workflow name="contract-renewal" description="Legal: a daily job checks expiring contracts and notifies the legal team.">
+  <Trigger kind="schedule" every_minutes="1440"/>
+  <Steps>
+    <HttpRequest id="s1" method="GET" url="https://clm.contoso.com/api/contracts/expiring?days=30" body=""/>
+    <SendEmail id="s2" to="legal@contoso.com" subject="Contract renewal check ran" body="Contracts expiring within 30 days were refreshed in the CLM."/>
+    <PostToTeamsChannel id="s3" team="Legal" channel="Renewals" message="Daily renewal check completed."/>
+    <Delay id="s4" minutes="60"/>
+    <LogToHistoryList id="s5" message="Renewal reminder cycle complete"/>
+  </Steps>
+  <TestCases>
+    <Case name="scheduled run"/>
+  </TestCases>
+</Workflow>

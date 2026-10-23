@@ -1,0 +1,20 @@
+{
+  "name": "document-retention",
+  "description": "Records management: flag documents past the 7-year retention period for disposition review.",
+  "trigger": {"kind": "manual"},
+  "steps": [
+    {"id": "s1", "type": "ForEach", "items": "field:Documents", "do": [
+      {"id": "s2", "type": "If", "condition": "item:AgeDays > 2555", "then": [
+        {"id": "s3", "type": "UpdateListItem", "list": "Records", "item_id": "{item:ID}", "fields": {"Disposition": "Review"}},
+        {"id": "s4", "type": "SendEmail", "to": "records@contoso.com", "subject": "Retention review: {item:Title}",
+         "body": "{item:Title} is {item:AgeDays} days old."}
+      ]}
+    ]},
+    {"id": "s5", "type": "SendEmail", "to": "records@contoso.com", "subject": "Retention sweep finished",
+     "body": "Batch {field:BatchId} processed."}
+  ],
+  "cases": [
+    {"name": "mixed batch", "trigger_body": {"BatchId": "B-17", "Documents": [{"ID": 1, "Title": "2015 audit pack", "AgeDays": 3900}, {"ID": 2, "Title": "2024 policy", "AgeDays": 600}, {"ID": 3, "Title": "2017 contracts", "AgeDays": 3100}]}},
+    {"name": "nothing due", "trigger_body": {"BatchId": "B-18", "Documents": [{"ID": 4, "Title": "2025 minutes", "AgeDays": 200}]}}
+  ]
+}

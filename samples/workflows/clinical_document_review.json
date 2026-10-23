@@ -1,0 +1,25 @@
+{
+  "name": "clinical-document-review",
+  "description": "Clinical operations: a medical reviewer approves trial documents; rejected ones get a revision task.",
+  "trigger": {"kind": "item_created", "site": "https://contoso.sharepoint.com/sites/ClinicalOps", "list": "Trial Documents"},
+  "steps": [
+    {"id": "s1", "type": "RequestApproval", "assigned_to": "{field:MedicalReviewer}",
+     "title": "Review {field:DocumentType}: {field:Title} (study {field:StudyId})"},
+    {"id": "s2", "type": "If", "condition": "approval:s1 == 'Approve'",
+     "then": [
+       {"id": "s3", "type": "UpdateListItem", "list": "Trial Documents", "item_id": "{field:ID}",
+        "fields": {"Status": "Approved", "ApprovedBy": "{field:MedicalReviewer}"}},
+       {"id": "s4", "type": "SendEmail", "to": "{field:Author}", "subject": "{field:Title} approved",
+        "body": "{field:DocumentType} for study {field:StudyId} is approved."}
+     ],
+     "else": [
+       {"id": "s5", "type": "UpdateListItem", "list": "Trial Documents", "item_id": "{field:ID}",
+        "fields": {"Status": "Changes requested"}},
+       {"id": "s6", "type": "CreateTask", "plan": "Document revisions", "title": "Revise {field:Title}", "assignee": "{field:Author}"}
+     ]}
+  ],
+  "cases": [
+    {"name": "approved", "trigger_body": {"ID": 12, "Title": "Protocol v3.1", "DocumentType": "Protocol amendment", "StudyId": "ABC-301", "MedicalReviewer": "dr.rao@contoso.com", "Author": "writer@contoso.com"}, "approvals": {"s1": "Approve"}},
+    {"name": "changes requested", "trigger_body": {"ID": 13, "Title": "ICF v2", "DocumentType": "Informed consent form", "StudyId": "ABC-301", "MedicalReviewer": "dr.rao@contoso.com", "Author": "writer@contoso.com"}, "approvals": {"s1": "Reject"}}
+  ]
+}

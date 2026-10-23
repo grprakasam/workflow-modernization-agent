@@ -1,0 +1,20 @@
+<Workflow name="incident-notification" description="IT operations: Sev1 incidents page the on-call team and update leadership; others are logged.">
+  <Trigger kind="http"/>
+  <Steps>
+    <If id="s1" condition="field:Severity == 'Sev1'">
+      <Then>
+        <HttpRequest id="s2" method="POST" url="https://events.pagerduty.com/v2/enqueue" body="{field:Summary}"/>
+        <PostToTeamsChannel id="s3" team="IT Ops" channel="Major incidents" message="Sev1: {field:Summary}"/>
+        <Delay id="s4" minutes="15"/>
+        <SendEmail id="s5" to="it-leadership@contoso.com" subject="Sev1 update: {field:Summary}" body="Incident {field:IncidentId} is being worked on."/>
+      </Then>
+      <Else>
+        <CreateListItem id="s6" list="Incidents"><Field name="Title" value="{field:Summary}"/><Field name="Severity" value="{field:Severity}"/></CreateListItem>
+      </Else>
+    </If>
+  </Steps>
+  <TestCases>
+    <Case name="sev1"><Trigger><Field name="IncidentId" value="INC-9001"/><Field name="Severity" value="Sev1"/><Field name="Summary" value="Payments API down"/></Trigger></Case>
+    <Case name="sev3"><Trigger><Field name="IncidentId" value="INC-9002"/><Field name="Severity" value="Sev3"/><Field name="Summary" value="Slow report export"/></Trigger></Case>
+  </TestCases>
+</Workflow>

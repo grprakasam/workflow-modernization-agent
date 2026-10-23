@@ -1,0 +1,25 @@
+{
+  "name": "purchase-order",
+  "description": "Procurement: record PO lines, get CFO approval above 25,000, then send the PO to the ERP and the supplier.",
+  "trigger": {"kind": "http"},
+  "steps": [
+    {"id": "s1", "type": "ForEach", "items": "field:Lines", "do": [
+      {"id": "s2", "type": "CreateListItem", "list": "PO Lines",
+       "fields": {"PONumber": "{field:PONumber}", "Sku": "{item:Sku}", "Qty": "{item:Qty}"}}
+    ]},
+    {"id": "s3", "type": "If", "condition": "field:Total > 25000", "then": [
+      {"id": "s4", "type": "RequestApproval", "assigned_to": "{field:CFO}", "title": "PO {field:PONumber} for {field:Total}"},
+      {"id": "s5", "type": "If", "condition": "approval:s4 != 'Approve'", "then": [
+        {"id": "s6", "type": "SendEmail", "to": "{field:Buyer}", "subject": "PO {field:PONumber} cancelled", "body": "The CFO did not approve this PO."},
+        {"id": "s7", "type": "Terminate", "status": "Cancelled"}
+      ]}
+    ]},
+    {"id": "s8", "type": "HttpRequest", "method": "POST", "url": "https://erp.contoso.com/api/purchase-orders", "body": "{field:PONumber}"},
+    {"id": "s9", "type": "SendEmail", "to": "{field:SupplierEmail}", "subject": "Purchase order {field:PONumber}", "body": "Please confirm delivery for PO {field:PONumber}."}
+  ],
+  "cases": [
+    {"name": "small PO", "trigger_body": {"PONumber": "PO-881", "Total": 4200, "CFO": "cfo@contoso.com", "Buyer": "buyer@contoso.com", "SupplierEmail": "orders@acme.example", "Lines": [{"Sku": "A-1", "Qty": 10}, {"Sku": "B-7", "Qty": 2}]}},
+    {"name": "large PO approved", "trigger_body": {"PONumber": "PO-882", "Total": 61000, "CFO": "cfo@contoso.com", "Buyer": "buyer@contoso.com", "SupplierEmail": "orders@acme.example", "Lines": [{"Sku": "C-3", "Qty": 400}]}, "approvals": {"s4": "Approve"}},
+    {"name": "large PO rejected", "trigger_body": {"PONumber": "PO-883", "Total": 99000, "CFO": "cfo@contoso.com", "Buyer": "buyer@contoso.com", "SupplierEmail": "orders@acme.example", "Lines": [{"Sku": "D-9", "Qty": 900}]}, "approvals": {"s4": "Reject"}}
+  ]
+}

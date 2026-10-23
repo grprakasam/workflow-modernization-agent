@@ -1,0 +1,22 @@
+{
+  "name": "it-access-request",
+  "description": "IT: the application owner approves access; the legacy flow adds the user to an AD group with PowerShell.",
+  "trigger": {"kind": "manual"},
+  "variables": [{"name": "Granted", "type": "boolean", "default": false}],
+  "steps": [
+    {"id": "s1", "type": "RequestApproval", "assigned_to": "{field:AppOwner}", "title": "Access to {field:Application} for {field:Requester}"},
+    {"id": "s2", "type": "If", "condition": "approval:s1 == 'Approve'",
+     "then": [
+       {"id": "s3", "type": "RunPowerShellScript", "script": "Add-ADGroupMember -Identity {field:ADGroup} -Members {field:Requester}"},
+       {"id": "s4", "type": "SetVariable", "name": "Granted", "value": true},
+       {"id": "s5", "type": "SendEmail", "to": "{field:Requester}", "subject": "Access granted: {field:Application}", "body": "You now have access to {field:Application}."}
+     ],
+     "else": [
+       {"id": "s6", "type": "SendEmail", "to": "{field:Requester}", "subject": "Access request declined", "body": "{field:AppOwner} declined access to {field:Application}."}
+     ]}
+  ],
+  "cases": [
+    {"name": "approved", "trigger_body": {"Requester": "ana@contoso.com", "AppOwner": "raj@contoso.com", "Application": "SAP GRC", "ADGroup": "SAP-GRC-Users"}, "approvals": {"s1": "Approve"}},
+    {"name": "declined", "trigger_body": {"Requester": "ana@contoso.com", "AppOwner": "raj@contoso.com", "Application": "SAP GRC", "ADGroup": "SAP-GRC-Users"}, "approvals": {"s1": "Reject"}}
+  ]
+}

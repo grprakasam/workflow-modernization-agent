@@ -1,0 +1,39 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "workflow-modernization-agent"
+version = "0.1.0"
+description = "Convert legacy XML/JSON workflows (SharePoint Designer / Nintex style) into Power Automate cloud-flow drafts, with deterministic rules, bounded LLM mapping and differential behavioral testing."
+readme = "README.md"
+requires-python = ">=3.11"
+license = { text = "MIT" }
+authors = [{ name = "Prakasam R" }]
+dependencies = ["pydantic>=2.5"]
+
+[project.optional-dependencies]
+anthropic = ["anthropic>=0.40"]
+openai = ["openai>=1.40"]
+dev = ["pytest>=8", "ruff>=0.6"]
+
+[project.scripts]
+wma = "wma.cli:main"
+
+[tool.setuptools]
+packages = ["wma"]
+
+[tool.ruff]
+line-length = 120
+target-version = "py311"
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I", "UP", "B"]
+ignore = ["E731"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+
+[tool.ruff.lint.per-file-ignores]
+"wma/evaluate.py" = ["E501"]  # markdown table rows
+"wma/validate.py" = ["E501"]

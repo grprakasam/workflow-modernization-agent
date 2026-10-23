@@ -1,0 +1,24 @@
+{
+  "name": "leave-request",
+  "description": "HR: manager approves leave; approved leave goes on the team calendar.",
+  "trigger": {"kind": "item_created", "site": "https://contoso.sharepoint.com/sites/HR", "list": "Leave Requests"},
+  "steps": [
+    {"id": "s1", "type": "RequestApproval", "assigned_to": "{field:ManagerEmail}",
+     "title": "Leave: {field:EmployeeName}, {field:Days} days from {field:StartDate}"},
+    {"id": "s2", "type": "If", "condition": "approval:s1 == 'Approve'",
+     "then": [
+       {"id": "s3", "type": "SendEmail", "to": "{field:EmployeeEmail}", "subject": "Leave approved",
+        "body": "Your {field:Days}-day leave from {field:StartDate} is approved."},
+       {"id": "s4", "type": "CreateListItem", "list": "Team Calendar",
+        "fields": {"Title": "{field:EmployeeName} on leave", "StartDate": "{field:StartDate}", "Days": "{field:Days}"}}
+     ],
+     "else": [
+       {"id": "s5", "type": "SendEmail", "to": "{field:EmployeeEmail}", "subject": "Leave not approved",
+        "body": "Please talk to {field:ManagerEmail} about your request."}
+     ]}
+  ],
+  "cases": [
+    {"name": "approved", "trigger_body": {"EmployeeName": "Priya", "EmployeeEmail": "priya@contoso.com", "ManagerEmail": "lee@contoso.com", "Days": 3, "StartDate": "2026-11-10"}, "approvals": {"s1": "Approve"}},
+    {"name": "rejected", "trigger_body": {"EmployeeName": "Priya", "EmployeeEmail": "priya@contoso.com", "ManagerEmail": "lee@contoso.com", "Days": 12, "StartDate": "2026-12-20"}, "approvals": {"s1": "Reject"}}
+  ]
+}

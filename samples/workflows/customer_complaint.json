@@ -1,0 +1,25 @@
+{
+  "name": "customer-complaint",
+  "description": "Banking operations: urgent complaints are escalated to the duty manager; others go to the care queue.",
+  "trigger": {"kind": "item_created", "site": "https://contoso.sharepoint.com/sites/CustomerCare", "list": "Complaints"},
+  "variables": [{"name": "Priority", "type": "string", "default": "Normal"}],
+  "steps": [
+    {"id": "s1", "type": "If", "condition": "field:Severity == 'High' or field:CustomerTier == 'Platinum'",
+     "then": [
+       {"id": "s2", "type": "SetVariable", "name": "Priority", "value": "Urgent"},
+       {"id": "s3", "type": "PostToTeamsChannel", "team": "Customer Care", "channel": "Escalations",
+        "message": "Urgent complaint {field:Title} from {field:CustomerName}"},
+       {"id": "s4", "type": "SendSMS", "phone": "{field:DutyManagerPhone}", "message": "Urgent complaint {field:Title}"}
+     ],
+     "else": [
+       {"id": "s5", "type": "SendEmail", "to": "care-queue@contoso.com", "subject": "New complaint {field:Title}",
+        "body": "Customer {field:CustomerName} raised a complaint."}
+     ]},
+    {"id": "s6", "type": "UpdateListItem", "list": "Complaints", "item_id": "{field:ID}", "fields": {"Priority": "{var:Priority}"}}
+  ],
+  "cases": [
+    {"name": "high severity", "trigger_body": {"ID": 501, "Title": "CMP-501", "CustomerName": "R. Iyer", "Severity": "High", "CustomerTier": "Gold", "DutyManagerPhone": "+44 7700 900123"}},
+    {"name": "normal", "trigger_body": {"ID": 502, "Title": "CMP-502", "CustomerName": "J. Smith", "Severity": "Low", "CustomerTier": "Standard", "DutyManagerPhone": "+44 7700 900123"}},
+    {"name": "platinum customer", "trigger_body": {"ID": 503, "Title": "CMP-503", "CustomerName": "A. Chen", "Severity": "Low", "CustomerTier": "Platinum", "DutyManagerPhone": "+44 7700 900123"}}
+  ]
+}
