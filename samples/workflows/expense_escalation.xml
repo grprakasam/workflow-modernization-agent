@@ -1,0 +1,34 @@
+<Workflow name="expense-escalation" description="Finance: route an expense to the right approver by amount and category.">
+  <Trigger kind="item_modified" site="https://contoso.sharepoint.com/sites/Finance" list="Expenses"/>
+  <Variables>
+    <Variable name="Level" type="integer" default="0"/>
+  </Variables>
+  <Steps>
+    <If id="s1" condition="field:Amount >= 1000 and field:Category == 'Travel'">
+      <Then>
+        <SetVariable id="s2" name="Level" value="2" valueType="number"/>
+        <RequestApproval id="s3" assigned_to="{field:FinanceController}" title="Travel expense {field:Title}: {field:Amount}"/>
+      </Then>
+      <Else>
+        <If id="s4" condition="field:Amount >= 250">
+          <Then>
+            <SetVariable id="s5" name="Level" value="1" valueType="number"/>
+            <RequestApproval id="s6" assigned_to="{field:ManagerEmail}" title="Expense {field:Title}: {field:Amount}"/>
+          </Then>
+        </If>
+      </Else>
+    </If>
+    <UpdateListItem id="s7" list="Expenses" item_id="{field:ID}"><Field name="ApprovalLevel" value="{var:Level}"/></UpdateListItem>
+  </Steps>
+  <TestCases>
+    <Case name="large travel goes to the controller">
+      <Trigger><Field name="ID" type="number" value="7"/><Field name="Title" value="Flights to Basel"/><Field name="Amount" type="number" value="1840"/><Field name="Category" value="Travel"/><Field name="FinanceController" value="fc@contoso.com"/><Field name="ManagerEmail" value="lee@contoso.com"/></Trigger>
+    </Case>
+    <Case name="mid-size goes to the manager">
+      <Trigger><Field name="ID" type="number" value="8"/><Field name="Title" value="Team lunch"/><Field name="Amount" type="number" value="320"/><Field name="Category" value="Meals"/><Field name="FinanceController" value="fc@contoso.com"/><Field name="ManagerEmail" value="lee@contoso.com"/></Trigger>
+    </Case>
+    <Case name="small needs no approval">
+      <Trigger><Field name="ID" type="number" value="9"/><Field name="Title" value="Taxi"/><Field name="Amount" type="number" value="38.5"/><Field name="Category" value="Travel"/><Field name="FinanceController" value="fc@contoso.com"/><Field name="ManagerEmail" value="lee@contoso.com"/></Trigger>
+    </Case>
+  </TestCases>
+</Workflow>

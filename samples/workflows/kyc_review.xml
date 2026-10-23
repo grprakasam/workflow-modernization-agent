@@ -1,0 +1,32 @@
+<Workflow name="kyc-review" description="Banking compliance: band a KYC case by risk score; high-risk cases need compliance approval and go to the financial crime unit.">
+  <Trigger kind="item_created" site="https://contoso.sharepoint.com/sites/Compliance" list="KYC Cases"/>
+  <Variables>
+    <Variable name="RiskBand" type="string" default="Low"/>
+  </Variables>
+  <Steps>
+    <If id="s1" condition="field:RiskScore >= 70">
+      <Then>
+        <SetVariable id="s2" name="RiskBand" value="High"/>
+        <RequestApproval id="s3" assigned_to="compliance@contoso.com" title="High-risk KYC case {field:Title} (score {field:RiskScore})"/>
+        <If id="s4" condition="approval:s3 == 'Approve'">
+          <Then><UpdateListItem id="s5" list="KYC Cases" item_id="{field:ID}"><Field name="Status" value="Cleared"/></UpdateListItem></Then>
+          <Else><UpdateListItem id="s6" list="KYC Cases" item_id="{field:ID}"><Field name="Status" value="Rejected"/></UpdateListItem></Else>
+        </If>
+        <AssignToGroup id="s7" group="Financial Crime Unit" item_id="{field:ID}"/>
+      </Then>
+      <Else>
+        <If id="s8" condition="field:RiskScore >= 40">
+          <Then><SetVariable id="s9" name="RiskBand" value="Medium"/></Then>
+        </If>
+      </Else>
+    </If>
+    <UpdateListItem id="s10" list="KYC Cases" item_id="{field:ID}"><Field name="RiskBand" value="{var:RiskBand}"/></UpdateListItem>
+    <LogToHistoryList id="s11" message="KYC {field:Title}: risk band {var:RiskBand}"/>
+  </Steps>
+  <TestCases>
+    <Case name="low risk"><Trigger><Field name="ID" type="number" value="31"/><Field name="Title" value="KYC-31"/><Field name="RiskScore" type="number" value="12"/></Trigger></Case>
+    <Case name="medium risk"><Trigger><Field name="ID" type="number" value="32"/><Field name="Title" value="KYC-32"/><Field name="RiskScore" type="number" value="55"/></Trigger></Case>
+    <Case name="high risk cleared"><Trigger><Field name="ID" type="number" value="33"/><Field name="Title" value="KYC-33"/><Field name="RiskScore" type="number" value="88"/></Trigger><Approval step="s3" outcome="Approve"/></Case>
+    <Case name="high risk rejected"><Trigger><Field name="ID" type="number" value="34"/><Field name="Title" value="KYC-34"/><Field name="RiskScore" type="number" value="91"/></Trigger><Approval step="s3" outcome="Reject"/></Case>
+  </TestCases>
+</Workflow>

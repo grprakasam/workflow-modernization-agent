@@ -1,0 +1,42 @@
+<Workflow name="invoice-approval" description="Finance: invoices above 5,000 need manager approval; smaller ones are auto-approved.">
+  <Trigger kind="item_created" site="https://contoso.sharepoint.com/sites/Finance" list="Invoices"/>
+  <Variables>
+    <Variable name="Status" type="string" default="Pending"/>
+  </Variables>
+  <Steps>
+    <If id="s1" condition="field:Amount > 5000">
+      <Then>
+        <RequestApproval id="s2" assigned_to="{field:ManagerEmail}" title="Approve invoice {field:Title} ({field:Amount} {field:Currency})"/>
+        <If id="s3" condition="approval:s2 == 'Approve'">
+          <Then>
+            <SetVariable id="s4" name="Status" value="Approved"/>
+            <UpdateListItem id="s5" list="Invoices" item_id="{field:ID}"><Field name="Status" value="{var:Status}"/></UpdateListItem>
+          </Then>
+          <Else>
+            <SetVariable id="s6" name="Status" value="Rejected"/>
+            <SendEmail id="s7" to="{field:SubmitterEmail}" subject="Invoice {field:Title} rejected" body="Your invoice was rejected by {field:ManagerEmail}."/>
+            <UpdateListItem id="s8" list="Invoices" item_id="{field:ID}"><Field name="Status" value="{var:Status}"/></UpdateListItem>
+          </Else>
+        </If>
+      </Then>
+      <Else>
+        <SetVariable id="s9" name="Status" value="Auto-approved"/>
+        <UpdateListItem id="s10" list="Invoices" item_id="{field:ID}"><Field name="Status" value="{var:Status}"/></UpdateListItem>
+      </Else>
+    </If>
+    <LogToHistoryList id="s11" message="Invoice {field:Title} finished with status {var:Status}"/>
+  </Steps>
+  <TestCases>
+    <Case name="small invoice is auto-approved">
+      <Trigger><Field name="ID" type="number" value="101"/><Field name="Title" value="INV-1001"/><Field name="Amount" type="number" value="1200"/><Field name="Currency" value="USD"/><Field name="ManagerEmail" value="maria@contoso.com"/><Field name="SubmitterEmail" value="sam@contoso.com"/></Trigger>
+    </Case>
+    <Case name="large invoice approved">
+      <Trigger><Field name="ID" type="number" value="102"/><Field name="Title" value="INV-1002"/><Field name="Amount" type="number" value="9800"/><Field name="Currency" value="EUR"/><Field name="ManagerEmail" value="maria@contoso.com"/><Field name="SubmitterEmail" value="sam@contoso.com"/></Trigger>
+      <Approval step="s2" outcome="Approve"/>
+    </Case>
+    <Case name="large invoice rejected">
+      <Trigger><Field name="ID" type="number" value="103"/><Field name="Title" value="INV-1003"/><Field name="Amount" type="number" value="12000"/><Field name="Currency" value="USD"/><Field name="ManagerEmail" value="maria@contoso.com"/><Field name="SubmitterEmail" value="sam@contoso.com"/></Trigger>
+      <Approval step="s2" outcome="Reject"/>
+    </Case>
+  </TestCases>
+</Workflow>

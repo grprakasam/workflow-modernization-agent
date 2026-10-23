@@ -1,0 +1,20 @@
+<Workflow name="employee-onboarding" description="HR and IT: welcome a new hire, open IT and buddy tasks, request a badge.">
+  <Trigger kind="item_created" site="https://contoso.sharepoint.com/sites/HR" list="New Hires"/>
+  <Steps>
+    <SendEmail id="s1" to="{field:ManagerEmail}" subject="{field:FullName} joins on {field:StartDate}" body="Please prepare a first-week plan for {field:FullName}."/>
+    <CreateTask id="s2" plan="Onboarding" title="Set up laptop for {field:FullName}" assignee="it-desk@contoso.com"/>
+    <PostToTeamsChannel id="s3" team="HR" channel="New joiners" message="Please welcome {field:FullName}, joining {field:Department} on {field:StartDate}."/>
+    <ForEach id="s4" items="field:Buddies">
+      <SendEmail id="s5" to="{item:Email}" subject="You are a buddy for {field:FullName}" body="Thanks {item:Name}! {field:FullName} starts on {field:StartDate}."/>
+    </ForEach>
+    <HttpRequest id="s6" method="POST" url="https://hr-api.contoso.com/badges" body="{field:EmployeeId}"/>
+  </Steps>
+  <TestCases>
+    <Case name="two buddies">
+      <Trigger><Field name="FullName" value="Arun Kumar"/><Field name="Department" value="Finance"/><Field name="StartDate" value="2026-11-03"/><Field name="ManagerEmail" value="dana@contoso.com"/><Field name="EmployeeId" value="E-5521"/><Field name="Buddies" type="json" value='[{"Name": "Kim", "Email": "kim@contoso.com"}, {"Name": "Ravi", "Email": "ravi@contoso.com"}]'/></Trigger>
+    </Case>
+    <Case name="no buddies">
+      <Trigger><Field name="FullName" value="Li Wei"/><Field name="Department" value="Legal"/><Field name="StartDate" value="2026-11-17"/><Field name="ManagerEmail" value="omar@contoso.com"/><Field name="EmployeeId" value="E-5530"/><Field name="Buddies" type="json" value="[]"/></Trigger>
+    </Case>
+  </TestCases>
+</Workflow>
