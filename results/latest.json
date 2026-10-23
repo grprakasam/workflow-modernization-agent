@@ -1,0 +1,436 @@
+{
+  "summary": {
+    "workflows": 12,
+    "steps": 83,
+    "action_steps": 65,
+    "rule_mapped": 53,
+    "llm_mapped": 9,
+    "unsupported": 3,
+    "auto_converted_rate": 0.9538,
+    "workflows_fully_automatic": 9,
+    "workflows_equivalent": 9,
+    "cases": 29,
+    "cases_passed": 24,
+    "case_fidelity": 0.8276,
+    "silent_failures": 0,
+    "static_issues": 0,
+    "review_minutes": 269.0,
+    "manual_rebuild_minutes": 766.0,
+    "review_effort_saved": 0.6488
+  },
+  "workflows": [
+    {
+      "name": "clinical-document-review",
+      "source": "clinical_document_review.json",
+      "steps": 6,
+      "by_method": {
+        "rule": 4,
+        "control": 1,
+        "llm": 1
+      },
+      "connectors": [
+        "shared_approvals",
+        "shared_office365",
+        "shared_planner",
+        "shared_sharepointonline"
+      ],
+      "static_issues": [],
+      "cases": 2,
+      "cases_passed": 2,
+      "case_diffs": {},
+      "unsupported": [],
+      "llm_mapped": [
+        {
+          "step": "s6",
+          "kind": "CreateTask",
+          "target": "planner.create_task",
+          "confidence": 0.88,
+          "issues": [],
+          "rationale": "Revision task maps to Planner Create a task."
+        }
+      ],
+      "review_minutes": 21.0,
+      "manual_minutes": 60.0,
+      "equivalent": true
+    },
+    {
+      "name": "contract-renewal",
+      "source": "contract_renewal.xml",
+      "steps": 5,
+      "by_method": {
+        "rule": 3,
+        "llm": 2
+      },
+      "connectors": [
+        "shared_office365",
+        "shared_sharepointonline",
+        "shared_teams"
+      ],
+      "static_issues": [],
+      "cases": 1,
+      "cases_passed": 1,
+      "case_diffs": {},
+      "unsupported": [],
+      "llm_mapped": [
+        {
+          "step": "s3",
+          "kind": "PostToTeamsChannel",
+          "target": "teams.post_message",
+          "confidence": 0.93,
+          "issues": [],
+          "rationale": "Channel post maps to Teams."
+        },
+        {
+          "step": "s5",
+          "kind": "LogToHistoryList",
+          "target": "sharepoint.create_item",
+          "confidence": 0.82,
+          "issues": [],
+          "rationale": "History entries are list items in the workflow history list."
+        }
+      ],
+      "review_minutes": 20.0,
+      "manual_minutes": 49.0,
+      "equivalent": true
+    },
+    {
+      "name": "customer-complaint",
+      "source": "customer_complaint.json",
+      "steps": 6,
+      "by_method": {
+        "control": 1,
+        "rule": 3,
+        "llm": 1,
+        "unsupported": 1
+      },
+      "connectors": [
+        "shared_office365",
+        "shared_sharepointonline",
+        "shared_teams"
+      ],
+      "static_issues": [],
+      "cases": 3,
+      "cases_passed": 1,
+      "case_diffs": {
+        "high severity": [
+          "event 2: source={'kind': 'sms', 'phone': '+44 7700 900123', 'message': 'Urgent complaint CMP-501'} flow={'kind': 'sp_update', 'list': 'Complaints', 'item_id': 501, 'fields': {'Priority': 'Urgent'}}"
+        ],
+        "platinum customer": [
+          "event 2: source={'kind': 'sms', 'phone': '+44 7700 900123', 'message': 'Urgent complaint CMP-503'} flow={'kind': 'sp_update', 'list': 'Complaints', 'item_id': 503, 'fields': {'Priority': 'Urgent'}}"
+        ]
+      },
+      "unsupported": [
+        {
+          "step": "s4",
+          "kind": "SendSMS",
+          "target": null,
+          "confidence": 0.55,
+          "issues": [
+            "confidence 0.55 is below 0.70"
+          ],
+          "rationale": "No SMS action in the catalog; an HTTP call to an SMS gateway might work but the gateway and auth are unknown."
+        }
+      ],
+      "llm_mapped": [
+        {
+          "step": "s3",
+          "kind": "PostToTeamsChannel",
+          "target": "teams.post_message",
+          "confidence": 0.92,
+          "issues": [],
+          "rationale": "Channel post maps to Teams."
+        }
+      ],
+      "review_minutes": 37.0,
+      "manual_minutes": 57.0,
+      "equivalent": false
+    },
+    {
+      "name": "document-retention",
+      "source": "document_retention.json",
+      "steps": 5,
+      "by_method": {
+        "control": 2,
+        "rule": 3
+      },
+      "connectors": [
+        "shared_office365",
+        "shared_sharepointonline"
+      ],
+      "static_issues": [],
+      "cases": 2,
+      "cases_passed": 2,
+      "case_diffs": {},
+      "unsupported": [],
+      "llm_mapped": [],
+      "review_minutes": 11.0,
+      "manual_minutes": 46.0,
+      "equivalent": true
+    },
+    {
+      "name": "employee-onboarding",
+      "source": "employee_onboarding.xml",
+      "steps": 6,
+      "by_method": {
+        "rule": 3,
+        "llm": 2,
+        "control": 1
+      },
+      "connectors": [
+        "shared_office365",
+        "shared_planner",
+        "shared_sharepointonline",
+        "shared_teams"
+      ],
+      "static_issues": [],
+      "cases": 2,
+      "cases_passed": 2,
+      "case_diffs": {},
+      "unsupported": [],
+      "llm_mapped": [
+        {
+          "step": "s2",
+          "kind": "CreateTask",
+          "target": "planner.create_task",
+          "confidence": 0.88,
+          "issues": [],
+          "rationale": "A task with plan, title and assignee maps to Planner Create a task."
+        },
+        {
+          "step": "s3",
+          "kind": "PostToTeamsChannel",
+          "target": "teams.post_message",
+          "confidence": 0.93,
+          "issues": [],
+          "rationale": "Channel post maps to Teams Post message in a chat or channel."
+        }
+      ],
+      "review_minutes": 24.0,
+      "manual_minutes": 60.0,
+      "equivalent": true
+    },
+    {
+      "name": "expense-escalation",
+      "source": "expense_escalation.xml",
+      "steps": 7,
+      "by_method": {
+        "control": 2,
+        "rule": 5
+      },
+      "connectors": [
+        "shared_approvals",
+        "shared_sharepointonline"
+      ],
+      "static_issues": [],
+      "cases": 3,
+      "cases_passed": 3,
+      "case_diffs": {},
+      "unsupported": [],
+      "llm_mapped": [],
+      "review_minutes": 13.0,
+      "manual_minutes": 62.0,
+      "equivalent": true
+    },
+    {
+      "name": "incident-notification",
+      "source": "incident_notification.xml",
+      "steps": 6,
+      "by_method": {
+        "control": 1,
+        "rule": 4,
+        "llm": 1
+      },
+      "connectors": [
+        "shared_office365",
+        "shared_sharepointonline",
+        "shared_teams"
+      ],
+      "static_issues": [],
+      "cases": 2,
+      "cases_passed": 2,
+      "case_diffs": {},
+      "unsupported": [],
+      "llm_mapped": [
+        {
+          "step": "s3",
+          "kind": "PostToTeamsChannel",
+          "target": "teams.post_message",
+          "confidence": 0.93,
+          "issues": [],
+          "rationale": "Channel post maps to Teams."
+        }
+      ],
+      "review_minutes": 18.0,
+      "manual_minutes": 57.0,
+      "equivalent": true
+    },
+    {
+      "name": "invoice-approval",
+      "source": "invoice_approval.xml",
+      "steps": 11,
+      "by_method": {
+        "control": 2,
+        "rule": 8,
+        "llm": 1
+      },
+      "connectors": [
+        "shared_approvals",
+        "shared_office365",
+        "shared_sharepointonline"
+      ],
+      "static_issues": [],
+      "cases": 3,
+      "cases_passed": 3,
+      "case_diffs": {},
+      "unsupported": [],
+      "llm_mapped": [
+        {
+          "step": "s11",
+          "kind": "LogToHistoryList",
+          "target": "sharepoint.create_item",
+          "confidence": 0.82,
+          "issues": [],
+          "rationale": "LogToHistoryList writes an item to the workflow history list; Create item on that list reproduces it."
+        }
+      ],
+      "review_minutes": 23.0,
+      "manual_minutes": 97.0,
+      "equivalent": true
+    },
+    {
+      "name": "it-access-request",
+      "source": "it_access_request.json",
+      "steps": 6,
+      "by_method": {
+        "rule": 4,
+        "control": 1,
+        "unsupported": 1
+      },
+      "connectors": [
+        "shared_approvals",
+        "shared_office365"
+      ],
+      "static_issues": [],
+      "cases": 2,
+      "cases_passed": 1,
+      "case_diffs": {
+        "approved": [
+          "event 2: source={'kind': 'script', 'script': 'Add-ADGroupMember -Identity SAP-GRC-Users -Members ana@contoso.com'} flow={'kind': 'email', 'to': 'ana@contoso.com', 'subject': 'Access granted: SAP GRC', 'body': 'You now have access to SAP GRC.'}"
+        ]
+      },
+      "unsupported": [
+        {
+          "step": "s3",
+          "kind": "RunPowerShellScript",
+          "target": null,
+          "confidence": 0.95,
+          "issues": [
+            "model reports no equivalent: Running PowerShell against Active Directory has no catalog action; it needs an Azure Automation runbook or an Entra ID group connector."
+          ],
+          "rationale": "Running PowerShell against Active Directory has no catalog action; it needs an Azure Automation runbook or an Entra ID group connector."
+        }
+      ],
+      "llm_mapped": [],
+      "review_minutes": 31.0,
+      "manual_minutes": 54.0,
+      "equivalent": false
+    },
+    {
+      "name": "kyc-review",
+      "source": "kyc_review.xml",
+      "steps": 11,
+      "by_method": {
+        "control": 3,
+        "rule": 6,
+        "unsupported": 1,
+        "llm": 1
+      },
+      "connectors": [
+        "shared_approvals",
+        "shared_sharepointonline"
+      ],
+      "static_issues": [],
+      "cases": 4,
+      "cases_passed": 2,
+      "case_diffs": {
+        "high risk cleared": [
+          "event 3: source={'kind': 'permissions', 'group': 'Financial Crime Unit', 'item_id': 33} flow={'kind': 'sp_update', 'list': 'KYC Cases', 'item_id': 33, 'fields': {'RiskBand': 'High'}}"
+        ],
+        "high risk rejected": [
+          "event 3: source={'kind': 'permissions', 'group': 'Financial Crime Unit', 'item_id': 34} flow={'kind': 'sp_update', 'list': 'KYC Cases', 'item_id': 34, 'fields': {'RiskBand': 'High'}}"
+        ]
+      },
+      "unsupported": [
+        {
+          "step": "s7",
+          "kind": "AssignToGroup",
+          "target": null,
+          "confidence": 0.8,
+          "issues": [
+            "proposed target 'sharepoint.set_permissions' is outside the catalog"
+          ],
+          "rationale": "Granting a group access to the item matches SharePoint item permissions."
+        }
+      ],
+      "llm_mapped": [
+        {
+          "step": "s11",
+          "kind": "LogToHistoryList",
+          "target": "sharepoint.create_item",
+          "confidence": 0.82,
+          "issues": [],
+          "rationale": "History entries are list items in the workflow history list."
+        }
+      ],
+      "review_minutes": 39.0,
+      "manual_minutes": 94.0,
+      "equivalent": false
+    },
+    {
+      "name": "leave-request",
+      "source": "leave_request.json",
+      "steps": 5,
+      "by_method": {
+        "rule": 4,
+        "control": 1
+      },
+      "connectors": [
+        "shared_approvals",
+        "shared_office365",
+        "shared_sharepointonline"
+      ],
+      "static_issues": [],
+      "cases": 2,
+      "cases_passed": 2,
+      "case_diffs": {},
+      "unsupported": [],
+      "llm_mapped": [],
+      "review_minutes": 14.0,
+      "manual_minutes": 49.0,
+      "equivalent": true
+    },
+    {
+      "name": "purchase-order",
+      "source": "purchase_order.json",
+      "steps": 9,
+      "by_method": {
+        "control": 3,
+        "rule": 6
+      },
+      "connectors": [
+        "shared_approvals",
+        "shared_office365",
+        "shared_sharepointonline"
+      ],
+      "static_issues": [],
+      "cases": 3,
+      "cases_passed": 3,
+      "case_diffs": {},
+      "unsupported": [],
+      "llm_mapped": [],
+      "review_minutes": 18.0,
+      "manual_minutes": 81.0,
+      "equivalent": true
+    }
+  ]
+}
