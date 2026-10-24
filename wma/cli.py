@@ -10,6 +10,7 @@ from pathlib import Path
 from .evaluate import convert, evaluate_samples, scorecard_markdown
 from .llm_mapper import BoundedLLMMapper, make_provider
 from .parsers import parse_file
+from .solution import pack_solution, prepare_solution
 from .validate import validate_definition
 
 ROOT = Path(__file__).resolve().parent.parent
@@ -34,7 +35,7 @@ def cmd_convert(args) -> int:
     for i in issues:
         print(f"  STATIC  {i}")
     print(f"wrote {out / 'definition.json'}")
-    return 1 if issues else 0
+    return 1 if issues or (flagged and not args.allow_drafts) else 0
 
 
 def cmd_evaluate(args) -> int:
@@ -72,13 +73,31 @@ def main(argv=None) -> int:
         sp.add_argument("--min-confidence", type=float, default=0.7)
         if name == "convert":
             sp.add_argument("file")
+            sp.add_argument(
+                "--allow-drafts", action="store_true", help="allow unresolved flagged steps in draft output"
+            )
             sp.add_argument("--out", default="out")
         else:
             sp.add_argument("--samples", default=str(ROOT / "samples" / "workflows"))
             sp.add_argument("--out", default=str(ROOT / "results"))
             sp.add_argument("--flows", default=None, help="also write each generated definition here")
             sp.add_argument("--min-auto", type=float, default=0.0, help="fail if auto-conversion rate is lower")
+    sp = sub.add_parser("prepare-solution", help="copy an exported solution and bind one reviewed definition")
+    sp.add_argument("definition")
+    sp.add_argument("--template", required=True)
+    sp.add_argument("--workflow", required=True, help="relative Workflows/name-guid.json")
+    sp.add_argument("--out", required=True)
+    sp.add_argument("--bindings", help="JSON mapping connector names to existing reference keys")
+    sp.add_argument("--zipfile", help="optional new ZIP path; invokes installed PAC to pack, never import")
     args = p.parse_args(argv)
+    if args.cmd == "prepare-solution":
+        definition = json.loads(Path(args.definition).read_text(encoding="utf-8"))
+        bindings = json.loads(Path(args.bindings).read_text(encoding="utf-8")) if args.bindings else {}
+        manifest = prepare_solution(args.template, args.workflow, definition, args.out, bindings)
+        if args.zipfile:
+            pack_solution(args.out, args.zipfile)
+        print(json.dumps(manifest, indent=2))
+        return 0
     return cmd_convert(args) if args.cmd == "convert" else cmd_evaluate(args)
 
 
