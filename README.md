@@ -173,3 +173,7 @@ Both formats map onto the same IR. They are modelled on SharePoint Designer and 
 Prakasam R · [github.com/grprakasam](https://github.com/grprakasam) · [linkedin.com/in/grprakasam](https://www.linkedin.com/in/grprakasam)
 
 MIT licence.
+
+## Solution preparation and evidence boundaries
+
+See [implementation status](docs/implementation-status.md) for the tested template-based preparation command, connection checks and remaining native-export/live-tenant validation gaps. Conversion now returns a failure status for unresolved steps unless --allow-drafts is explicitly selected; draft JSON remains available for review.
