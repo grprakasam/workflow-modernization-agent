@@ -1,5 +1,7 @@
 # Workflow Modernization Agent
 
+> **This project has moved.** It now lives in [my_ai_pet_project](https://github.com/grprakasam/my_ai_pet_project/tree/main/workflow_modernization) as Track 1, with its full commit history and CI. This repository is archived and read-only so existing links keep working.
+
 [![ci](https://github.com/grprakasam/workflow-modernization-agent/actions/workflows/ci.yml/badge.svg)](https://github.com/grprakasam/workflow-modernization-agent/actions/workflows/ci.yml)
 
 **Converts legacy XML/JSON workflows into Power Automate cloud-flow drafts, then uses differential testing to check that each draft behaves like the original.**
