@@ -1,6 +1,6 @@
 # Workflow Modernization Agent
 
-> **This project has moved.** It now lives in [my_ai_pet_project](https://github.com/grprakasam/my_ai_pet_project/tree/main/workflow_modernization) as Track 1, with its full commit history and CI. This repository is archived and read-only so existing links keep working.
+> **This project has moved.** It now lives in [agentic-ai-learning-lab](https://github.com/grprakasam/agentic-ai-learning-lab/tree/main/workflow_modernization) as Track 1, with its full commit history and CI. This repository is archived and read-only so existing links keep working.
 
 [![ci](https://github.com/grprakasam/workflow-modernization-agent/actions/workflows/ci.yml/badge.svg)](https://github.com/grprakasam/workflow-modernization-agent/actions/workflows/ci.yml)
 
@@ -170,12 +170,16 @@ Both formats map onto the same IR. They are modelled on SharePoint Designer and 
   - [0004 offline fixtures](docs/adr/0004-offline-fixtures.md)
   - [0005 model output is untrusted](docs/adr/0005-model-output-is-untrusted.md)
 
+## Solution preparation and evidence boundaries
+
+See [implementation status](docs/implementation-status.md) for the tested template-based preparation command, connection checks and remaining native-export/live-tenant validation gaps. Conversion now returns a failure status for unresolved steps unless --allow-drafts is explicitly selected; draft JSON remains available for review.
+
+## How this was built
+
+I built this in October 2026; it now continues as Track 1 of [agentic-ai-learning-lab](https://github.com/grprakasam/agentic-ai-learning-lab). AI coding assistants (Claude Code and Codex) are my pair programmers: they draft code and tests; I set the design (recorded in the decision records), review every change and decide what ships.
+
 ## Author
 
 Prakasam R · [github.com/grprakasam](https://github.com/grprakasam) · [linkedin.com/in/grprakasam](https://www.linkedin.com/in/grprakasam)
 
 MIT licence.
-
-## Solution preparation and evidence boundaries
-
-See [implementation status](docs/implementation-status.md) for the tested template-based preparation command, connection checks and remaining native-export/live-tenant validation gaps. Conversion now returns a failure status for unresolved steps unless --allow-drafts is explicitly selected; draft JSON remains available for review.
